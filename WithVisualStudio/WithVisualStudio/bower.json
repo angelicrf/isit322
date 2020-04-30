@@ -1,0 +1,22 @@
+{
+  "name": "WithVisualStudio",
+  "authors": [
+    "Angelique"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "wwwroot/lib",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "jquery": "^3.5.0"
+  }
+}
