@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WithVisualStudio.Controllers;
 using WithVisualStudio.Models;
 
 namespace WithVisualStudio.Models
 {
-    public class SimpleRepository
+    public class SimpleRepository: IRepository
     {
         private static SimpleRepository sharedRepository = new SimpleRepository();
         private Dictionary<string, Product> products = new Dictionary<string, Product>();
