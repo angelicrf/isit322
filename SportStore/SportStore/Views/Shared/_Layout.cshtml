@@ -2,11 +2,22 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet"
+          asp-href-include="/lib/bootstrap/dist/**/*.min.css"
+          asp-href-exclude="**/*-reboot*,**/*-grid*" />
     <title>Angelique SportStore</title>
 </head>
-<body>
-    <div>
-        @RenderBody()
+<body class="bg-success">
+    <div class="navbar navbar-inverse bg-inverse" role="navigation">
+        <a class="navbar-brand" href="#">Angelique ISIT322 SPORT STORE</a>
     </div>
+        <div class="row m-1 p-1">
+            <div id="categories" class="col-3">
+               <h4 class="bg-danger">Angelique Sports' goods and products' List</h4>
+            </div>
+            <div class="col-9">
+             @RenderBody()
+            </div>
+        </div>
 </body>
 </html>
