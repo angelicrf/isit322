@@ -23,22 +23,37 @@ public class RegisterUser extends AppCompatActivity {
         EditText userLastName = (EditText) findViewById(R.id.LNbtn);
         EditText userEmail = (EditText) findViewById(R.id.EMUser);
         EditText userPasswordv = (EditText) findViewById(R.id.PsUs);
-        EditText userVerify = (EditText) findViewById(R.id.RePasUs);
+        EditText userNameCr = (EditText) findViewById(R.id.userNameText);
+        EditText userSecondPassword = (EditText) findViewById(R.id.RePasUs);
+
         toMongo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String getNameUser = userName.getText().toString();
                 String getLastNameUSer = userLastName.getText().toString();
+                String getUserName = userNameCr.getText().toString();
                 String getEmailUser = userEmail.getText().toString();
                 String getPasswordUser = userPasswordv.getText().toString();
+                String getPassword_2 = userSecondPassword.getText().toString();
 
                 mc.setName(getNameUser);
                 mc.setLastName(getLastNameUSer);
+                mc.setUserName(getUserName);
                 mc.setEmail(getEmailUser);
                 mc.setPassword(getPasswordUser);
-                mc.ShowCredential();
-
-                showEmailuser.setText(getEmailUser);
+                try {
+                    mc.setPassword2(getPassword_2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                String findAlert = mc.getAlertUser();
+                if(findAlert != null){
+                    showEmailuser.setText(String.format("%s There is an error! ", findAlert));
+                }
+                else {
+                    mc.ShowCredential();
+                    showEmailuser.setText(String.format("%s Welcome to DeviceDetector! ", getUserName));
+                }
             }
         });
 

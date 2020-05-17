@@ -22,19 +22,33 @@ public class SecondActivity extends AppCompatActivity {
         submitbtn.setOnClickListener(new View.OnClickListener(){
 
 
-            EditText NameText = (EditText) findViewById(R.id.UserName);
-            EditText passwordText = (EditText) findViewById(R.id.PasswordText);
+            EditText UserNameText = (EditText) findViewById(R.id.UserName);
+            EditText PassText = (EditText) findViewById(R.id.PasswordText);
+
             TextView displayText = (TextView) findViewById(R.id.display);
 
 
             @Override
             public void onClick(View view){
-                String getName = NameText.getText().toString();
-                String getPassword = passwordText.getText().toString();
-                gu.setName(getName);
-                gu.GetMongoUserData();
-                Object rgUser = gu.getName();
-                displayText.setText(rgUser.toString());
+                String getUserName = UserNameText.getText().toString();
+                String getPass = PassText.getText().toString();
+                gu.setUserName(getUserName);
+                gu.setPassword(getPass);
+                Object rgUser = gu.getUserName();
+                String showEmpty = gu.getValidateUser();
+                String showBadLog = gu.getBadLogin();
+                if(showEmpty != null){
+                    displayText.setText(String.format("Login Failed Error Found %s", showEmpty.toString()));
+                }
+                else{
+                    gu.GetMongoUserData();
+                    if(showBadLog == null){
+                    displayText.setText(String.format("Welcome Back %s", rgUser.toString()));
+                    }else{
+                        displayText.setText(String.format("Login Failed %s", showBadLog));
+                    }
+                }
+
 
               }
 

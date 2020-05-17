@@ -13,8 +13,7 @@ import com.mongodb.stitch.android.core.auth.StitchUser;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
 import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
 
 import org.bson.Document;
 
@@ -27,15 +26,23 @@ public class MongodbCredential {
 
     String Name;
     String LastName;
+    String UserName;
     String Email;
     String Password;
+    String Password2;
+    String AlertUser;
+
 
     public String getName() {
         return Name;
     }
 
     public void setName(String name) {
-        Name = name;
+       Name = name;
+        if(name == null ){
+            setAlertUser("Name is null");
+            throw new NullPointerException("Name can't be null");
+        }
     }
 
     public String getLastName() {
@@ -44,6 +51,22 @@ public class MongodbCredential {
 
     public void setLastName(String lastName) {
         LastName = lastName;
+        if(lastName == null ){
+            setAlertUser("LastName is null");
+            throw new NullPointerException("Last name can't be null");
+        }
+    }
+
+    public String getUserName() {
+        return UserName;
+    }
+
+    public void setUserName(String userName) {
+        UserName = userName;
+        if(userName == null ){
+            setAlertUser("UserName is null");
+            throw new NullPointerException("User name can't be null");
+        }
     }
 
     public String getEmail() {
@@ -52,6 +75,13 @@ public class MongodbCredential {
 
     public void setEmail(String email) {
         Email = email;
+        if(email == null ){
+            setAlertUser("Email is Null");
+            throw new NullPointerException("Email can't be null");
+        }
+        /*if(!email.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")){
+            throw new NullPointerException("Email is invalid, try again!");
+        }*/
     }
 
     public String getPassword() {
@@ -60,6 +90,31 @@ public class MongodbCredential {
 
     public void setPassword(String password) {
         Password = password;
+        if(password == null ){
+            setAlertUser("Password Is Null");
+            throw new NullPointerException("Name can't be null");
+        }
+    }
+
+    public String getPassword2() {
+        return Password2;
+    }
+
+    public void setPassword2(String password2) throws Exception {
+
+        Password2 = password2;
+        if(!password2.equals(getPassword())){
+            setAlertUser("Password not Match");
+            throw new Exception("Wrong password, try again!");
+        }
+    }
+
+    public String getAlertUser() {
+        return AlertUser;
+    }
+
+    public void setAlertUser(String alertUser) {
+        AlertUser = alertUser;
     }
 
     public void ShowCredential () {
@@ -74,10 +129,10 @@ public class MongodbCredential {
                 mongoClient.getDatabase("sensorData").getCollection("sensors");
 
         client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
-                new Continuation<StitchUser, Task<RemoteUpdateResult>>() {
+                new Continuation<StitchUser, Task<RemoteInsertOneResult>>() {
 
                     @Override
-                    public Task<RemoteUpdateResult> then(@NonNull Task<StitchUser> task) throws Exception {
+                    public Task<RemoteInsertOneResult> then(@NonNull Task<StitchUser> task) throws Exception {
                         if (!task.isSuccessful()) {
                             Log.e("STITCH", "Login failed!");
                             throw Objects.requireNonNull(task.getException());
@@ -87,42 +142,31 @@ public class MongodbCredential {
                                 "owner_id",
                                 task.getResult().getId()
                         );
-                        updateDoc.put("Name", Name);
-                        updateDoc.put("LastName", LastName);
-                        updateDoc.put("Email", Email);
-                        updateDoc.put("Password", Password);
+                        Document newItem = new Document()
+                                .append("name", Name)
+                                .append("lastname", LastName)
+                                .append("username", UserName)
+                                .append("email", Email)
+                                .append("password", Password);
 
-                        return coll.updateOne(
-                                null, updateDoc, new RemoteUpdateOptions().upsert(true)
-                        );
+
+                        final Task <RemoteInsertOneResult> insertTask = coll.insertOne(newItem);
+                        insertTask.addOnCompleteListener(new OnCompleteListener <RemoteInsertOneResult> () {
+                            @Override
+                            public void onComplete(@NonNull Task <RemoteInsertOneResult> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("app", String.format("successfully inserted item with id %s",
+                                            task.getResult().getInsertedId()));
+                                } else {
+                                    Log.e("app", "failed to insert document with: ", task.getException());
+                                }
+                            }
+                        });
+
+
+                        return insertTask;
+
                     }
-                }
 
-        ).continueWithTask(new Continuation<RemoteUpdateResult, Task<List<Document>>>() {
-            @Override
-            public Task<List<Document>> then(@NonNull Task<RemoteUpdateResult> task) throws Exception {
-                if (!task.isSuccessful()) {
-                    Log.e("STITCH", "Update failed!");
-                    throw Objects.requireNonNull(task.getException());
-                }
-
-                return coll
-                        .find(new Document("owner_id", Objects.requireNonNull(client.getAuth().getUser()).getId()))
-                        .limit(100)
-                        .into(docs);
-            }
-        }).addOnCompleteListener(new OnCompleteListener<List<Document>>() {
-            @Override
-            public void onComplete(@NonNull Task<List<Document>> task) {
-                if (task.isSuccessful()) {
-                    Log.d("STITCH", "Found docs: " + task.getResult().toString());
-                    return;
-                }
-                Log.e("STITCH", "Error: " + Objects.requireNonNull(task.getException()).toString());
-                task.getException().printStackTrace();
-            }
-        });
-
-    }
-
-}
+                });
+    }}

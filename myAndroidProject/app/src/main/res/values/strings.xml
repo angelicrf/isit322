@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">WirelessDeviceDetector</string>
     <string name="my_app_id">toandroid-uotho</string>
+    <string name="angelique_welcome_devicedetector">Angelique Welcome DeviceDetector!</string>
+    <string name="hi_all">WirelessDeviceDetector</string>
 </resources>
