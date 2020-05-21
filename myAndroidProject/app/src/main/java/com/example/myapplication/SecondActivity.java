@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.IOException;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -34,6 +37,7 @@ public class SecondActivity extends AppCompatActivity {
                 String getPass = PassText.getText().toString();
                 gu.setUserName(getUserName);
                 gu.setPassword(getPass);
+
                 Object rgUser = gu.getUserName();
                 String showEmpty = gu.getValidateUser();
                 String showBadLog = gu.getBadLogin();
@@ -41,17 +45,33 @@ public class SecondActivity extends AppCompatActivity {
                     displayText.setText(String.format("Login Failed Error Found %s", showEmpty.toString()));
                 }
                 else{
-                    gu.GetMongoUserData();
+                    try {
+                        gu.GetMongoUserData();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     if(showBadLog == null){
                     displayText.setText(String.format("Welcome Back %s", rgUser.toString()));
+
+                    Intent MenuPage = new Intent(getApplicationContext(), MenuActivity.class);
+
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    sleep(5000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                startActivity(MenuPage);
+                            }
+                        }.start();
+
                     }else{
                         displayText.setText(String.format("Login Failed %s", showBadLog));
                     }
                 }
-
-
               }
-
     });
 }
 }

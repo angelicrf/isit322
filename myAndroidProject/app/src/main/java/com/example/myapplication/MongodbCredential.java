@@ -17,12 +17,15 @@ import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
 
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 import java.util.Objects;
 
 public class MongodbCredential {
-    public MongodbCredential() { }
+    MongodbCredential() { }
+
+    public StitchAppClient client;
+    public RemoteMongoClient mongoClient;
+    public RemoteMongoCollection<Document> coll;
 
     String Name;
     String LastName;
@@ -117,16 +120,12 @@ public class MongodbCredential {
         AlertUser = alertUser;
     }
 
-    public void ShowCredential () {
-        List<Document> docs = new ArrayList<>();
-        final StitchAppClient client =
-                Stitch.initializeDefaultAppClient("toandroid-uotho");
-
-        final RemoteMongoClient mongoClient =
-                client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
-
-        final RemoteMongoCollection<Document> coll =
-                mongoClient.getDatabase("sensorData").getCollection("sensors");
+    public void ShowCredential () throws IOException {
+       // List<Document> docs = new ArrayList<>();
+            client = Stitch.initializeDefaultAppClient("toandroid-uotho");
+            mongoClient =
+                    client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
+            coll = mongoClient.getDatabase("sensorData").getCollection("sensors");
 
         client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
                 new Continuation<StitchUser, Task<RemoteInsertOneResult>>() {
@@ -137,7 +136,6 @@ public class MongodbCredential {
                             Log.e("STITCH", "Login failed!");
                             throw Objects.requireNonNull(task.getException());
                         }
-
                         final Document updateDoc = new Document(
                                 "owner_id",
                                 task.getResult().getId()
@@ -148,7 +146,6 @@ public class MongodbCredential {
                                 .append("username", UserName)
                                 .append("email", Email)
                                 .append("password", Password);
-
 
                         final Task <RemoteInsertOneResult> insertTask = coll.insertOne(newItem);
                         insertTask.addOnCompleteListener(new OnCompleteListener <RemoteInsertOneResult> () {
@@ -162,11 +159,10 @@ public class MongodbCredential {
                                 }
                             }
                         });
-
-
                         return insertTask;
-
                     }
 
                 });
-    }}
+       // client.close();
+    }
+}

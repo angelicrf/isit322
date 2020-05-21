@@ -16,16 +16,19 @@ import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
 
 import org.bson.Document;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class GetUser {
 
-    public GetUser() {}
+    GetUser() {super();}
+
 
     String UserName;
     String Password;
     String ValidateUser;
     String BadLogin;
+    String newValue;
 
     public String getUserName() {
         return UserName;
@@ -67,9 +70,9 @@ public class GetUser {
         ValidateUser = validateUser;
     }
 
-    public void  GetMongoUserData(){
-        final StitchAppClient client =
-                Stitch.initializeDefaultAppClient("toandroid-uotho");
+    public void  GetMongoUserData() throws IOException {
+
+        final StitchAppClient client = Stitch.initializeDefaultAppClient("toandroid-uotho");
 
         final RemoteMongoClient mongoClient =
                 client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
@@ -119,13 +122,11 @@ public class GetUser {
                                 }
                             }
                         });
-
                         return th;
 
                     }
+                   // client.close();
                 });
-
+       // client.close();
     }
-
-
 }

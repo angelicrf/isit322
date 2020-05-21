@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.IOException;
 
 public class RegisterUser extends AppCompatActivity {
     MongodbCredential mc = new MongodbCredential();
@@ -51,12 +54,27 @@ public class RegisterUser extends AppCompatActivity {
                     showEmailuser.setText(String.format("%s There is an error! ", findAlert));
                 }
                 else {
-                    mc.ShowCredential();
+                    try {
+                        mc.ShowCredential();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     showEmailuser.setText(String.format("%s Welcome to DeviceDetector! ", getUserName));
+                    Intent MenuPage = new Intent(getApplicationContext(), MenuActivity.class);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            startActivity(MenuPage);
+                        }
+                    }.start();
                 }
             }
         });
-
 
     }
 }
